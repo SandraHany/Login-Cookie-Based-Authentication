@@ -1,0 +1,47 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Login Page";
+}
+<div class="container">
+    @if (Model.IsLoggedIn)
+    {
+        <p>You are logged in as @Model.Username.</p>
+        <a asp-page-handler="Logout" class="btn btn-link">Logout</a>
+    }
+    else
+    {
+        <form method="post">
+            <h2>Login</h2>
+            <hr />
+
+            <div asp-validation-summary="All"></div>
+
+            <div class="form-group">
+                <label asp-for="LoginInput.Username"></label>
+                <input asp-for="LoginInput.Username" class="form-control" />
+                <span asp-validation-for="LoginInput.Username" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LoginInput.Password"></label>
+                <input asp-for="LoginInput.Password" type="password" class="form-control" />
+                <span asp-validation-for="LoginInput.Password" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    }
+</div>
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.13/jquery.validate.unobtrusive.min.js"></script>
+}
+<style>
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding-top: 50px;
+    }
+</style>
