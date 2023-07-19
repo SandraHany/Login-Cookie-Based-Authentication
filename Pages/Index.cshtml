@@ -6,8 +6,10 @@
 <div class="container">
     @if (Model.IsLoggedIn)
     {
-        <p>You are logged in as @Model.Username.</p>
-        <a asp-page-handler="Logout" class="btn btn-link">Logout</a>
+        <p>You are logged in as @User.Identity.Name.</p>
+        <form method="post">
+            <button type="submit" asp-page-handler="OnPostLogout" class="btn btn-link">Logout</button>
+        </form>
     }
     else
     {

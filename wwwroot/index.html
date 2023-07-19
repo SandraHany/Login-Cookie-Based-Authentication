@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Current Date and Time</title>
+</head>
+<body>
+    <h2 id="datetime"></h2>
+
+    <script>
+        async function getCurrentDateTime() {
+            try {
+                const response = await fetch('/api/datetime');
+                const data = await response.text();
+                document.getElementById('datetime').textContent = data;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        getCurrentDateTime();
+    </script>
+</body>
+</html>

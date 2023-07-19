@@ -1,47 +1,79 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+
+
+
 
 namespace AuthenticationCookies.Pages;
 
 public class IndexModel : PageModel
 {
- 
+
     [BindProperty]
     public LoginInput LoginInput { get; set; }
-
-    public bool IsLoggedIn => HttpContext.Request.Cookies.ContainsKey("LoggedIn");
-
-    public string Username => HttpContext.Request.Cookies["LoggedIn"];
-
-    public IActionResult OnPost()
+    public bool IsLoggedIn = false;
+    public Task<LoginInput> AuthenticateUser(string name, string password)
     {
-        if (!ModelState.IsValid)
+        LoginInput user = null;
+        if (name == "intern" && password == "summer 2023 july")
         {
-            return Page();
+            user = LoginInput;
+        }
+        return Task.FromResult(user);
+    }
+    public async Task<IActionResult> OnPostAsync()
+    {
+
+        if (ModelState.IsValid)
+        {
+
+            var user = await AuthenticateUser(LoginInput.Username, LoginInput.Password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
+
+            return RedirectToPage(); ;
         }
 
-        if (LoginInput.Username == "intern" && LoginInput.Password == "summer 2023 july")
-        {
-            HttpContext.Response.Cookies.Append("LoggedIn", LoginInput.Username);
-            return RedirectToPage();
-        }
-
-        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
         return Page();
     }
-
-    public IActionResult OnGetLogout()
+    public void OnGet()
     {
-        if (HttpContext.Request.Cookies.ContainsKey("LoggedIn"))
+        if (User.Identity.IsAuthenticated)
         {
-            HttpContext.Response.Cookies.Delete("LoggedIn");
+            IsLoggedIn = true;
         }
+    }
+    public async Task<IActionResult> OnPostLogout()
+    {
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
 
         return RedirectToPage();
     }
 }
-
 public class LoginInput
 {
     [Required(ErrorMessage = "Username is required.")]
